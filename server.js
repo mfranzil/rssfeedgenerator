@@ -1,4 +1,5 @@
 const express = require('express');
+const favicon = require('serve-favicon');
 const fs = require('fs');
 const { exec, spawn, fork, execFile } = require('promisify-child-process');
 
@@ -47,8 +48,6 @@ app.get('/feeds/:feed', async (req, res) => {
     let feed = req.params.feed;
 
     // Check if the request wants to refresh the feed
-
-    console.log(req.query);
     let refresh = req.query.refresh;
     if (refresh) {
         console.log('Refreshing feed of ' + feed);
@@ -85,6 +84,7 @@ app.get('/feeds/:feed', async (req, res) => {
     let feedData = fs.readFileSync(feedFile, 'utf8');
 
     // Create the page
+    app.use(favicon(feedFolder + '/favicon.ico'));
     res.set('Content-Type', 'text/xml');
     res.send(feedData);
 });

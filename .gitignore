@@ -116,6 +116,7 @@ Config.py
 test/
 
 feeds/*/*.xml
+feeds/*/favicon.ico
 
 ## --- NODE.JS PART
 
