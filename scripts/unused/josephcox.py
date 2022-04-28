@@ -7,7 +7,7 @@
 # GNU General Public License Version 3 (the ``GPL'').
 #
 import os
-import Config
+import config
 import requests
 from lxml import etree as ET
 from bs4 import BeautifulSoup
@@ -18,7 +18,7 @@ header_desktop = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; r
                  "Accept-Language": "it,en-US;q=0.7,en;q=0.3"}
 
 timeoutconnection = 120
-rssfile = Config.outputpath + "josephcox.xml"
+rssfile = config.outputpath + "josephcox.xml"
 list_of_articles = []
 
 

@@ -7,7 +7,7 @@
 # GNU General Public License Version 3 (the ``GPL'').
 #
 import os
-import Config
+import config
 import requests
 from lxml import etree as ET
 from bs4 import BeautifulSoup
@@ -19,7 +19,7 @@ header_desktop = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.
                   "Accept-Language": "it"}
 
 timeoutconnection = 120
-rssfile = Config.outputpath + "breachedco.xml"
+rssfile = config.outputpath + "breachedco.xml"
 list_of_articles = []
 
 list_of_excluede_articles = ["https://breached.to/archive/index.php/thread-847.html",

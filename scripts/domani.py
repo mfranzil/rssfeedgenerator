@@ -7,7 +7,7 @@
 # GNU General Public License Version 3 (the ``GPL'').
 #
 import os
-import Config
+import config
 import requests
 from lxml import etree as ET
 from bs4 import BeautifulSoup
@@ -21,7 +21,7 @@ header_desktop = {
 
 timeoutconnection = 120
 feedname = "domani"
-rssfile = Config.outputpath + "/" + feedname + "/" + "feed.xml"
+rssfile = config.outputpath + "/" + feedname + "/" + "feed.xml"
 
 list_of_articles = []
 
