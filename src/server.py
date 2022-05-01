@@ -6,7 +6,7 @@ import logging as log
 import pathlib
 import time
 
-from .config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH
+from src.config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH
 
 from flask import Flask, send_from_directory
 
