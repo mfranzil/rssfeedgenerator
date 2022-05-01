@@ -7,12 +7,18 @@
 # GNU General Public License Version 3 (the ``GPL'').
 #
 import os
-import config
+from config import FEED_PATH, CONFIG_URL
+
+import pathlib
 import requests
+import logging as log
+
 from lxml import etree as ET
 from bs4 import BeautifulSoup
 from readability import Document
 from time import gmtime, strftime
+
+FEED_NAME = "domani"
 
 header_desktop = {
     "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:80.0) Gecko/20100101 Firefox/80.0",
@@ -20,8 +26,13 @@ header_desktop = {
 }
 
 timeoutconnection = 120
-feedname = "domani"
-rssfile = config.outputpath + "/" + feedname + "/" + "feed.xml"
+
+rss_folder = os.path.join(FEED_PATH, FEED_NAME)
+pathlib.Path(rss_folder).mkdir(parents=True, exist_ok=True)
+rss_file = os.path.join(rss_folder, "feed.xml")
+
+# Niente articoli editoriali o video
+disallowed_ids = ["video", "idee"]
 
 list_of_articles = []
 
@@ -35,9 +46,11 @@ def make_feed():
     title = ET.SubElement(channel, "title")
     title.text = "Domani RSS Feed"
 
+    date = ET.SubElement(channel, "updatedate")
+    date.text = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+
     link = ET.SubElement(channel, "link")
-    # link.text = "http://rss.draghetti.it"
-    link.text = "http://localhost"
+    link.text = CONFIG_URL
 
     description = ET.SubElement(channel, "description")
     description.text = "RSS feed degli articoli principali pubblicati da Domani"
@@ -49,14 +62,14 @@ def make_feed():
     generator.text = "Domani (from RSS Feed Generator by Andrea Draghetti)"
 
     tree = ET.ElementTree(root)
-    print(rssfile)
 
-    tree.write(rssfile, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+    log.info(f"Saving RSS file to {rss_file}")
+    tree.write(rss_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
 
 
 def add_feed(titlefeed, descriptionfeed, linkfeed):
     parser = ET.XMLParser(remove_blank_text=True)
-    tree = ET.parse(rssfile, parser)
+    tree = ET.parse(rss_file, parser)
     channel = tree.getroot()
 
     # Escludo eventuali duplicati in base al link
@@ -81,18 +94,19 @@ def add_feed(titlefeed, descriptionfeed, linkfeed):
     channel.find(".//generator").addnext(item)
 
     tree = ET.ElementTree(channel)
-    tree.write(rssfile, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+    tree.write(rss_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
 
 
 def scrap_domani(url):
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeoutconnection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    # Ottengo i primi due articoli di rielivo
-    article = 10
+    # Ottengo i primi 30 articoli di rilievo
+    article = 30
 
     for div in soupdesktop.find_all("div", attrs={"class": "teaser-content"}):
-        if article > 0:
+        __id = div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"].split("/")[1]
+        if __id not in disallowed_ids and article > 0:
             list_of_articles.append(div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"])
             article -= 1
 
@@ -104,7 +118,7 @@ def main():
     scrap_domani(url)
 
     # Se non esiste localmente un file XML procedo a crearlo.
-    if os.path.exists(rssfile) is not True:
+    if os.path.exists(rss_file) is not True:
         make_feed()
 
     # Analizzo ogni singolo articolo rilevato
@@ -114,7 +128,7 @@ def main():
         description = Document(response.text).summary()
         title = Document(response.text).short_title()
 
-        add_feed(title, description, urlarticolo)
+        add_feed(title, description, url[:-1] + urlarticolo)
 
 
 if __name__ == "__main__":

@@ -1,15 +1,25 @@
 # -*- coding: utf-8 -*-
-import logging as log
 import os
-from urllib import response
+import sys
 import importlib
+import logging as log
+import pathlib
+import time
 
-from flask import Flask, send_from_directory, request
+from config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION
+
+from flask import Flask, send_from_directory
+
+cli = sys.modules['flask.cli']
+cli.show_server_banner = lambda *x: None
 
 app = Flask(__name__)
-port = 2005
 
-script_position = 'scripts.'
+# Initialize logging
+log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+# Initialize folders
+pathlib.Path(FEED_PATH).mkdir(parents=True, exist_ok=True)
 
 
 def get_feed_list():
@@ -36,11 +46,6 @@ def index():
         'name': 'get_feed',
         'description': 'Get the feed',
         'url': '/feeds/:feed',
-        'method': 'GET'
-    }, {
-        'name': 'refresh_feed',
-        'description': 'Refresh the feed',
-        'url': '/refresh/:feed',
         'method': 'GET'
     }]
 
@@ -79,27 +84,25 @@ def get_feed(feed):
     if feed not in get_feed_list():
         return 'Feed not found', 404
 
-    feed_folder = os.path.join(app.root_path, 'feeds', feed)
+    feed_folder = os.path.join(FEED_PATH, feed)
     feed_file = os.path.join(feed_folder, 'feed.xml')
-    if not os.path.isfile(feed_file):
-        return 'Feed found, but without a feed.xml file. Please fix.', 404
+
+    # Check if the feed needs to be refreshed (if the date is older than the refresh time)
+    if not os.path.isfile(feed_file) or os.path.getmtime(feed_file) < (time.time() - REFRESH_TIME):
+        log.info(f"Refreshing feed {feed}, elapsed time:" +
+              f" {time.time() - os.path.getmtime(feed_file) if os.path.isfile(feed_file) else -1}")
+        refresher = importlib.import_module(SCRIPT_MODULE_POSITION + feed)
+        refresher.main()
+    else:
+        log.info(f"Feed {feed} is up to date, elapsed time: {time.time() - os.path.getmtime(feed_file)}")
 
     return send_from_directory(feed_folder, 'feed.xml'), 200
 
 
-@app.route('/refresh/<feed>/', methods=['GET'])
-def refresh_feed(feed):
-    refresher = importlib.import_module(script_position + feed)
-    refresher.main()
-
-    return 'Feed refreshed', 200
-
-
 if __name__ == '__main__':
-    print(f"RSS server listening on port {port}")
-    print(f"List of currently offered feeds:")
+    log.info(f"RSS server listening on port {LOCAL_PORT}")
+    log.info(f"List of currently offered feeds:")
     feeds = get_feed_list()
     for feed in feeds:
-        print('- ' + feed)
-    print()
-    app.run(host='0.0.0.0', port=port)
+        log.info('- ' + feed)
+    app.run(host='0.0.0.0', port=LOCAL_PORT)
