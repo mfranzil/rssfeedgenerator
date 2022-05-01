@@ -6,7 +6,7 @@ import logging as log
 import pathlib
 import time
 
-from config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION
+from config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH
 
 from flask import Flask, send_from_directory
 
@@ -24,17 +24,16 @@ pathlib.Path(FEED_PATH).mkdir(parents=True, exist_ok=True)
 
 def get_feed_list():
     feeds = []
-    feed_folder = 'feeds'
-    for item in os.listdir(feed_folder):
-        if os.path.isdir(os.path.join(feed_folder, item)):
-            feeds.append(item)
+    for item in os.listdir(SCRIPT_PATH):
+        if os.path.isfile(os.path.join(SCRIPT_PATH, item)) and item.endswith('.py'):
+            feeds.append(item.replace(".py", ""))
     return feeds
 
 
 @app.route('/', methods=['GET'])
 def index():
-    html = '<h1>RSS dumb server</h1>'
-    html += '<h2>Available API</h2>'
+    html = '<h1>RSS server</h1>'
+    html += '<h2>Available APIs</h2>'
     html += '<ul>'
 
     api_list = [{
@@ -53,19 +52,12 @@ def index():
         html += '<li>'
         html += '<h3>' + item['name'] + '</h3>'
         html += '<p>' + item['description'] + '</p>'
-        html += '<p>' + item['url'] + '</p>'
-        html += '<p>' + item['method'] + '</p>'
+        html += '<p>' + item['method'] + " " + item['url'] + '</p>'
         html += '</li>'
 
     html += '</ul>'
 
     return html, 200
-
-
-@app.route('/favicon.ico')
-def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
 
 
 @app.route('/feeds', methods=['GET'])
@@ -90,7 +82,7 @@ def get_feed(feed):
     # Check if the feed needs to be refreshed (if the date is older than the refresh time)
     if not os.path.isfile(feed_file) or os.path.getmtime(feed_file) < (time.time() - REFRESH_TIME):
         log.info(f"Refreshing feed {feed}, elapsed time:" +
-              f" {time.time() - os.path.getmtime(feed_file) if os.path.isfile(feed_file) else -1}")
+                 f" {time.time() - os.path.getmtime(feed_file) if os.path.isfile(feed_file) else -1}")
         refresher = importlib.import_module(SCRIPT_MODULE_POSITION + feed)
         refresher.main()
     else:
@@ -101,8 +93,5 @@ def get_feed(feed):
 
 if __name__ == '__main__':
     log.info(f"RSS server listening on port {LOCAL_PORT}")
-    log.info(f"List of currently offered feeds:")
-    feeds = get_feed_list()
-    for feed in feeds:
-        log.info('- ' + feed)
+    log.info(f"List of currently offered feeds: {', '.join(get_feed_list())}")
     app.run(host='0.0.0.0', port=LOCAL_PORT)

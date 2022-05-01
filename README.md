@@ -1,32 +1,33 @@
 # RSS Feed Generator
 
-### Perchè nasce questo progetto:
 
-Il progetto nasce con l'itento di creare un Feed RSS di ogni articolo scritto da Carola Frediani, poichè il quotidiano La Stampa non permette di ricevere notifiche di nuove pubblicazioni o di effettuare ricerche su un singolo autore, limitando pertanto la possibilità di rimanere aggiornati sugli ottimi articoli scritti da Carola.
+## Description
 
-Successivamente il progetto si è amplicato creando generatori di Feed RSS anche per altri fonti che non prevedono automaticamente la geneazione di un Feed.
+This project is an extension of the wonderful _RSS Feed Generator_ by [@drego85](https://github.com/drego85/RSSFeedGenerator).
 
-## Funzionamento Feed Carola Frediani
+It is an Azure Functions-ready web API in Python + Flask. It provides RSS feeds for popular websites which do not provide them. The websites are scraped manually, so eventual changes to their layouts may break the feed.
 
-1. È presente un cron che ogni 30 minuti analizza il Feed RSS e Homepage della La Stampa;
-2. Per ogni articolo pubblicato fa uno scrap del codice HTML alla ricerca del tag "article-author";
-3. Se il tag corrisponde con "carola frediani" o "frediani carola" viene aggiornato il Feed RSS in XML;
-4. Il Feed RSS dedicato a Carola conterrà, come da standard, l'ultimo articolo in cima. Vengono inoltre rimossi eventuali duplicati;
-5. Il Feed conterrà il Titolo, Link, Data (approssimativa) e Contenuto dell'articolo;
-6. Il contenuto viene reso "leggibile" con la libreria Readability e nel feed vengono riportati i soli primi 400 caratteri (HTML compreso, ovvero poco più di 100 caratteri di testo puro). Volutamente, per continuare la lettura si dovrà accedere al sito originale.
+For additional information, visit the aforelinked GitHub page.
 
-### Feed RSS:
+A temporary instance of this project is currently available at [https://mfranzil-rssgenerator.azurewebsites.net/](https://mfranzil-rssgenerator.azurewebsites.net/).
 
-I Feed RSS generati sono disponibi su: https://rss.draghetti.it/
+## Installation
 
-### License
+Using a virtual enviroment of one's choice is recommended. First install the dependencies:
 
-GNU General Public License version 2.0 (GPLv2)
+```bash
+pip install -r requirements.txt
+```
+
+Then run the server:
+
+```bash
+python server.py
+```
+
 
 ### Credits
 
-* [Andrea Draghetti](https://twitter.com/AndreaDraghetti) is the creator of the project
-
-Special thanks:
-
-* [Padraic Cunningham](http://stackexchange.com/users/2456564/padraic-cunningham?tab=accounts) to support for coding.
+* [Andrea Draghetti](https://twitter.com/AndreaDraghetti) - original author
+* [Padraic Cunningham](http://stackexchange.com/users/2456564/padraic-cunningham?tab=accounts) - original author, code support
+* [Matteo Franzil](https://github.com/mfranzil) - adapted the original RSS Feed Generator
