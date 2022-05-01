@@ -6,7 +6,7 @@ import logging as log
 import pathlib
 import time
 
-from config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH
+from .config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH
 
 from flask import Flask, send_from_directory
 
@@ -25,7 +25,7 @@ pathlib.Path(FEED_PATH).mkdir(parents=True, exist_ok=True)
 def get_feed_list():
     feeds = []
     for item in os.listdir(SCRIPT_PATH):
-        if os.path.isfile(os.path.join(SCRIPT_PATH, item)) and item.endswith('.py'):
+        if os.path.isfile(os.path.join(SCRIPT_PATH, item)) and item.endswith('.py') and not item.startswith('__'):
             feeds.append(item.replace(".py", ""))
     return feeds
 
