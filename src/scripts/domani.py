@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from readability import Document
 
-from common.common import make_feed, add_feed
+from scripts.common.common import make_feed, add_feed
 
 FEED_NAME = "domani"
 
