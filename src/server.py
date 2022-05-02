@@ -6,7 +6,7 @@ import logging as log
 import pathlib
 import time
 
-from src.config import FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH
+from src.config import FEED_FILENAME, FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH
 
 from flask import Flask, send_from_directory
 
@@ -77,18 +77,19 @@ def get_feed(feed):
         return 'Feed not found', 404
 
     feed_folder = os.path.join(FEED_PATH, feed)
-    feed_file = os.path.join(feed_folder, 'feed.xml')
+    pathlib.Path(feed_folder).mkdir(parents=True, exist_ok=True)
+    feed_file = os.path.join(feed_folder, FEED_FILENAME)
 
     # Check if the feed needs to be refreshed (if the date is older than the refresh time)
-    if not os.path.isfile(feed_file) or os.path.getmtime(feed_file) < (time.time() - REFRESH_TIME):
+    if not os.path.exists(feed_file) or os.path.getmtime(feed_file) < (time.time() - REFRESH_TIME):
         log.info(f"Refreshing feed {feed}, elapsed time:" +
                  f" {time.time() - os.path.getmtime(feed_file) if os.path.isfile(feed_file) else -1}")
         refresher = importlib.import_module(SCRIPT_MODULE_POSITION + feed)
-        refresher.main()
+        refresher.refresh_feed(feed_folder)
     else:
         log.info(f"Feed {feed} is up to date, elapsed time: {time.time() - os.path.getmtime(feed_file)}")
 
-    return send_from_directory(feed_folder, 'feed.xml'), 200
+    return send_from_directory(feed_folder, FEED_FILENAME), 200
 
 
 if __name__ == '__main__':

@@ -8,6 +8,14 @@ from lxml import etree as ET
 from time import gmtime, strftime
 
 
+DEFAULT_HEADER_DESKTOP = {
+    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:80.0) Gecko/20100101 Firefox/80.0",
+    "Accept-Language": "it,en-US;q=0.7,en;q=0.3"
+}
+
+DEFAULT_TIMEOUT_CONNECTION = 120
+
+
 def make_feed(rss_file, feed_title, feed_description, feed_generator):
     root = ET.Element("rss")
     root.set("version", "2.0")
