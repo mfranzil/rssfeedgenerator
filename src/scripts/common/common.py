@@ -2,7 +2,7 @@
 
 import logging as log
 
-from config import CONFIG_URL
+from src.config import CONFIG_URL
 
 from lxml import etree as ET
 from time import gmtime, strftime

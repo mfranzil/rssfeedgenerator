@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os
-from config import FEED_PATH
+from src.config import FEED_PATH
 
 import pathlib
 import requests
@@ -8,7 +8,7 @@ import requests
 from bs4 import BeautifulSoup
 from readability import Document
 
-from scripts.common.common import make_feed, add_feed
+from src.scripts.common.common import make_feed, add_feed
 
 FEED_NAME = "domani"
 
