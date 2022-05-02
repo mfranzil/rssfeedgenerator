@@ -33,8 +33,8 @@ def scrap_domani(url):
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeoutconnection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    # Ottengo i primi 30 articoli di rilievo
-    article = 30
+    # Ottengo i primi 8 articoli di rilievo
+    article = 8
 
     for div in soupdesktop.find_all("div", attrs={"class": "teaser-content"}):
         __id = div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"].split("/")[1]
