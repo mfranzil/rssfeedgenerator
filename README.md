@@ -13,7 +13,9 @@ A temporary instance of this project is currently available at [https://mfranzil
 
 ## Installation
 
-Using a virtual enviroment of one's choice is recommended. First install the dependencies:
+Using any virtual enviroment is recommended. This project was developed using `miniforge 4.12.0` and `python 3.9.7` on macOS Monterey `12.3.1`. Please take note that `python 3.10` or later is not currently (2022-05-07) supported on Azure Functions.
+
+To get started, first install the dependencies.
 
 ```bash
 pip install -r requirements.txt
@@ -25,6 +27,7 @@ Then run the server:
 python server.py
 ```
 
+A `direnv` installation is recommended for automatically adding the `PYTHONPATH` variable to the shell and allow easy local debugging.
 
 ### Credits
 
