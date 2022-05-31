@@ -24,7 +24,11 @@ def scrap_domani(url):
     article = 8
 
     for div in soupdesktop.find_all("div", attrs={"class": "teaser-content"}):
-        __id = div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"].split("/")[1]
+        print(div.find("h3", attrs={"class": "teaser-title"}))
+        try:
+            __id = div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"].split("/")[1]
+        except KeyError:
+            continue
         if __id not in disallowed_ids and article > 0:
             list_of_articles.append(div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"])
             article -= 1
