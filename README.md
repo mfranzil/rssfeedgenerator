@@ -1,6 +1,5 @@
 # RSS Feed Generator
 
-
 ## Description
 
 This project is an extension of the wonderful _RSS Feed Generator_ by [@drego85](https://github.com/drego85/RSSFeedGenerator).

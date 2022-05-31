@@ -4,3 +4,6 @@ local.settings.json
 test
 .venv
 __pycache__
+LICENCE
+README.md
+.DS_Store
