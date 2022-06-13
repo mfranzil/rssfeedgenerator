@@ -24,7 +24,6 @@ def scrap_domani(url):
     article = 8
 
     for div in soupdesktop.find_all("div", attrs={"class": "teaser-content"}):
-        print(div.find("h3", attrs={"class": "teaser-title"}))
         try:
             __id = div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"].split("/")[1]
         except KeyError:

@@ -44,6 +44,7 @@ def make_feed(rss_file, feed_title, feed_description, feed_generator):
 
     log.info(f"Saving RSS file to {rss_file}")
     tree.write(rss_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+    log.info("RSS file saved.")
 
 
 def add_feed(rss_file, feed_title, feed_description, feed_link):
