@@ -17,9 +17,6 @@ def scrap_cia(url):
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    # Ottengo i primi 8 articoli di rilievo
-    article = 8
-
     for div in soupdesktop.find_all("div", attrs={"class": "listBkg"}):
         if div['onclick']:
             try:
@@ -28,10 +25,6 @@ def scrap_cia(url):
                 continue
 
             list_of_articles.append(url)
-            article -= 1
-
-            if article == 0:
-                break
 
 
 def refresh_feed(rss_folder):

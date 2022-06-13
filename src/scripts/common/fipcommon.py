@@ -28,9 +28,6 @@ def scrap_fip(url, is_delibera):
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    # Ottengo i primi 8 articoli di rilievo
-    article = 8
-
     for div in soupdesktop.find_all("a"):
         if div['href']:
             if is_delibera:
@@ -51,10 +48,6 @@ def scrap_fip(url, is_delibera):
             if not div["href"].startswith("https://www.fip.it"):
                 div["href"] = "https://www.fip.it" + str(div["href"])
             list_of_articles.append(div["href"])
-            article -= 1
-
-            if article == 0:
-                break
 
 
 def refresh_feed(rss_folder, is_delibera, regione):
