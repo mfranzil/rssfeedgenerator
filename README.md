@@ -28,7 +28,13 @@ python server.py
 
 A `direnv` installation is recommended for automatically adding the `PYTHONPATH` variable to the shell and allow easy local debugging.
 
-### Credits
+## Available sources
+
+* [Domani](https://editorialedomani.it/)
+* [Eclectic Light](https://eclecticlight.co/) - only news with the MacOS tag
+* [Federazione Italiana Pallacanestro](https://fip.it/) - official communications by the CIA (Comitato Italiano Arbitri), the Veneto committee (two separate feeds for communications and resolutions) and the Trentino-Alto-Adige committee
+
+## Credits
 
 * [Andrea Draghetti](https://twitter.com/AndreaDraghetti) - original author
 * [Padraic Cunningham](http://stackexchange.com/users/2456564/padraic-cunningham?tab=accounts) - original author, code support
