@@ -2,7 +2,7 @@
 
 import logging as log
 
-from src.config import CONFIG_URL
+from src.config import CONFIG_URL, SEEN_FILENAME
 
 from lxml import etree as ET
 from time import gmtime, strftime
@@ -48,6 +48,14 @@ def make_feed(rss_file, feed_title, feed_description, feed_generator):
 
 
 def add_feed(rss_file, feed_title, feed_description, feed_link):
+    # First check if the feed link has already been seen in the past
+    with open(SEEN_FILENAME, "r") as f:
+        seen_links = f.readlines()
+
+    if seen_links and feed_link in seen_links:
+        log.debug(f"Feed link {feed_link} already seen, skipping...")
+        return
+
     parser = ET.XMLParser(remove_blank_text=True)
     tree = ET.parse(rss_file, parser)
     channel = tree.getroot()
@@ -75,3 +83,7 @@ def add_feed(rss_file, feed_title, feed_description, feed_link):
 
     tree = ET.ElementTree(channel)
     tree.write(rss_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+
+    with open(SEEN_FILENAME, "a") as f:
+        f.write(feed_link + "\n")
+        log.debug(f"Feed link {feed_link} added to RSS file.")

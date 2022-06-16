@@ -4,6 +4,8 @@ import os
 FEED_PATH = "/tmp/feeds"
 FEED_FILENAME = "feed.xml"
 
+SEEN_FILENAME = "/tmp/seen"
+
 SCRIPT_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'scripts')
 SCRIPT_MODULE_POSITION = "src.scripts."
 
