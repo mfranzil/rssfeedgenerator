@@ -7,7 +7,7 @@ import pathlib
 import threading
 import time
 
-from src.config import FEED_FILENAME, FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH,SEEN_FILENAME
+from src.config import FEED_FILENAME, FEED_PATH, LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, SCRIPT_PATH, SEEN_FILENAME
 
 from flask import Flask, send_from_directory
 
@@ -88,17 +88,18 @@ def get_feed(feed):
         log.info(f"Refreshing feed {feed}, elapsed time:" +
                  f" {time.time() - os.path.getmtime(feed_file) if os.path.isfile(feed_file) else -1}")
         refresher = importlib.import_module(SCRIPT_MODULE_POSITION + feed)
+        refresher.refresh_feed(feed_folder)
 
-        refreshing = True
-        t = threading.Thread(target=refresher.refresh_feed, args=(feed_folder,))
-        t.start()
+        # refreshing = True
+        # t = threading.Thread(target=refresher.refresh_feed, args=(feed_folder,))
+        # t.start()
     else:
         log.info(f"Feed {feed} is up to date, elapsed time: {time.time() - os.path.getmtime(feed_file)}")
 
-    if not os.path.exists(feed_file) and refreshing:
-        return 'The feed is being refreshed, please try again later', 202
-    elif not os.path.exists(feed_file):
-        return 'The feed cannot be refreshed, please try again later.', 500
+    # if not os.path.exists(feed_file) and refreshing:
+    #     return 'The feed is being refreshed, please try again later', 202
+    # elif not os.path.exists(feed_file):
+    #     return 'The feed cannot be refreshed, please try again later.', 500
 
     return send_from_directory(feed_folder, FEED_FILENAME), 200
 
