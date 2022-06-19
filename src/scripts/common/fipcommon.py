@@ -29,7 +29,8 @@ def scrap_fip(url, is_delibera, regione):
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
     for div in soupdesktop.find_all("a"):
-        if (link := div["href"]):
+        if (link := div["href"].replace(" ", "%20")):
+            print(link)
             if is_delibera:
                 if "deliber" not in link.lower():
                     continue

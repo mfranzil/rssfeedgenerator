@@ -50,10 +50,10 @@ def make_feed(rss_file, feed_title, feed_description, feed_generator):
 def add_feed(rss_file, feed_title, feed_description, feed_link):
     # First check if the feed link has already been seen in the past
     with open(SEEN_FILENAME, "r") as f:
-        seen_links = f.readlines()
+        seen_links = f.read().splitlines()
 
     if seen_links and feed_link in seen_links:
-        log.debug(f"Feed link {feed_link} already seen, skipping...")
+        log.info(f"Feed link {feed_link} already seen, skipping...")
         return
 
     parser = ET.XMLParser(remove_blank_text=True)
@@ -86,4 +86,4 @@ def add_feed(rss_file, feed_title, feed_description, feed_link):
 
     with open(SEEN_FILENAME, "a") as f:
         f.write(feed_link + "\n")
-        log.debug(f"Feed link {feed_link} added to RSS file.")
+        log.info(f"Feed link {feed_link} cached.")
