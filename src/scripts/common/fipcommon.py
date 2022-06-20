@@ -12,62 +12,73 @@ list_of_articles = []
 header_desktop = DEFAULT_HEADER_DESKTOP
 timeout_connection = DEFAULT_TIMEOUT_CONNECTION
 
-bad_articles = [
-    "#",
-    "sportello/fiscale-legale",
-    "https://servizi.fip.it",
-    "/Regioni/trentinoaltoadige/Home/CookiesPolicy",
-    "/Regioni/trentinoaltoadige/Home/PrivacyPolicy",
-    "http://www.sendoc.it/",
-    "Dolomitiacanestro",
-    "/Regioni/trentinoaltoadige"
-]
 
-
-def scrap_fip(url, is_delibera, regione):
+def scrap_fip(url, mode, section):
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    for div in soupdesktop.find_all("a"):
-        if (link := div["href"].replace(" ", "%20")):
-            print(link)
-            if is_delibera:
-                if "deliber" not in link.lower():
+    tmp = []
+    print(url)
+    if "Regioni" in url:
+        for div in soupdesktop.find_all("a"):
+            if (link := div["href"].replace(" ", "%20")):
+                tmp.append(link)
+    else:
+        if "Documento.asp" in url:
+            subclass = "NewsBox LIST"
+        elif "Comunicato.asp" in url:
+            subclass = "listBkg"
+        else:
+            raise ValueError("Cannot look for subclass in this url")
+
+        for div in soupdesktop.find_all("div", attrs={"class": subclass}):
+            if div['onclick']:
+                try:
+                    link = div['onclick'].split("'")[1].replace(" ", "%20")
+                    print(link)
+                except Exception as e:
                     continue
-            else:
-                if "comunicat" not in link.lower():
-                    continue
-            # Exclude bad articles
-            # admissible = True
-            # for item in bad_articles:
-            #    if item.lower() in link.lower() or item.lower() == link.lower():
-            #        admissible = False
-            # if not admissible:
-            #    continue
 
-            if not link.startswith("https://www.fip.it"):
-                link = "https://www.fip.it" + str(link)
+                tmp.append(link)
 
-            list_of_articles.append(link)
+    for link in tmp:
+        if mode == "delibera":
+            if "deliber" not in link.lower():
+                continue
+        elif mode == "comunicato":
+            if "comunicat" not in link.lower():
+                continue
+
+        if not link.startswith("/") and not link.startswith("http"):
+            link = "/" + section + "/" + link
+
+        if not link.startswith("https://www.fip.it"):
+            link = "https://www.fip.it" + link
+        
+        list_of_articles.append(link)
 
 
-def refresh_feed(rss_folder, is_delibera, regione):
-    url = f"https://www.fip.it/Regioni/{regione}/Comunicati/Comunicati?delibera={is_delibera}"
+def refresh_feed(rss_folder, request):
+    url = request["url"]
+    mode = request["mode"]
+    section = request["section"]
+    if request["required_url_substring"] and request["required_url_substring"] is not None:
+        required_url_substring = request["required_url_substring"].lower()
+    else:
+        required_url_substring = None
+
     rss_file = os.path.join(rss_folder, FEED_FILENAME)
 
     # Acquisisco l'articolo principale
-    scrap_fip(url, is_delibera, regione)
+    scrap_fip(url, mode, section)
 
     # Se non esiste localmente un file XML procedo a crearlo.
     if os.path.exists(rss_file) is not True:
-        sentence_repr2 = 'Delibere' if is_delibera else 'Comunicati'
-        sentence_repr3 = 'delle delibere' if is_delibera else 'dei comunicati ufficiali'
-
         make_feed(
             rss_file=rss_file,
-            feed_title=f"FIP - {regione.capitalize()} - {sentence_repr2}",
-            feed_description=f"RSS feed {sentence_repr3} di FIP {regione.capitalize()}",
-            feed_generator=f"FIP - {regione.capitalize()} - {sentence_repr2}"
+            feed_title=request["sentences"]["feed_title"],
+            feed_description=request["sentences"]["feed_description"],
+            feed_generator=request["sentences"]["feed_generatore"]
         )
 
     # Analizzo ogni singolo articolo rilevato
@@ -77,21 +88,15 @@ def refresh_feed(rss_folder, is_delibera, regione):
         modified_url = urlarticolo.split("/")[-1].replace("%20", " ")
 
         if "pdf" in urlarticolo:
-            if is_delibera:
-                sentence_repr = 'una nuova delibera'
-                if "deliber" not in urlarticolo.lower():
-                    continue
-            else:
-                sentence_repr = 'un nuovo comunicato ufficiale'
-                if "comunicat" not in urlarticolo.lower():
-                    continue
-
-            if regione.lower() == "trentinoaltoadige" and "public/24" not in urlarticolo.lower():
+            if mode == "delibera" and "deliber" not in urlarticolo.lower():
                 continue
-            elif regione.lower() == "veneto" and "public/11" not in urlarticolo.lower():
+            elif mode == "comunicato" and "comunicat" not in urlarticolo.lower():
                 continue
 
-            description = f"E' disponibile {sentence_repr}" \
+            if required_url_substring is not None and required_url_substring not in urlarticolo.lower():
+                continue
+
+            description = f"E' disponibile {request['sentences']['new_object']}" \
                 + f" per il download.\n<a href=\"{urlarticolo}\">{modified_url}</a>"
         else:
             description = Document(response.text).summary()
