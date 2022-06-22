@@ -54,7 +54,7 @@ def scrap_fip(url, mode, section):
 
         if not link.startswith("https://www.fip.it"):
             link = "https://www.fip.it" + link
-        
+ 
         list_of_articles.append(link)
 
 
