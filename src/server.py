@@ -68,7 +68,7 @@ def get_feeds():
 
     html = '<html><head><title>RSS feeds</title></head><body>'
     for feed in sorted(feeds):
-        html += '<a href="/feeds/{}">{}</a><br>'.format(feed, feed)
+        html += '<a href="feeds/{}">{}</a><br>'.format(feed, feed)
     html += '</body></html>'
     return html, 200
 
