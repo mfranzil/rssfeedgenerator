@@ -27,7 +27,8 @@ pathlib.Path(SEEN_FILENAME).touch(exist_ok=True)
 def get_feed_list():
     feeds = []
     for item in os.listdir(SCRIPT_PATH):
-        if os.path.isfile(os.path.join(SCRIPT_PATH, item)) and item.endswith('.py') and not item.startswith('__'):
+        if os.path.isfile(os.path.join(SCRIPT_PATH, item)) and item.endswith('.py') and not \
+          (item.startswith('_') or item.startswith('test_') or item.startswith('.')):
             feeds.append(item.replace(".py", ""))
     return feeds
 
@@ -102,6 +103,17 @@ def get_feed(feed):
     #     return 'The feed cannot be refreshed, please try again later.', 500
 
     return send_from_directory(feed_folder, FEED_FILENAME), 200
+
+
+# default page for 404
+@app.route('/<path:dummy>')
+def dummy(dummy):
+    return 'Not found', 404
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return 'Not found', 404
 
 
 if __name__ == '__main__':
