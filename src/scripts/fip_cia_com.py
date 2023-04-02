@@ -4,7 +4,7 @@ from src.scripts.common.fipcommon import refresh_feed as refresh_feed_common
 
 def refresh_feed(rss_folder):
     request = {
-        "url": f"https://www.fip.it/cia/Comunicato.asp",
+        "url": f"https://cia.fip.it/comunicati/",
         "section": "cia",
         "mode": "comunicato",
         "required_url_substring": None,

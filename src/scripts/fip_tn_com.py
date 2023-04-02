@@ -5,7 +5,7 @@ from src.scripts.common.fipcommon import refresh_feed as refresh_feed_common
 
 def refresh_feed(rss_folder):
     request = {
-        "url": f"https://www.fip.it/Regioni/trentinoaltoadige/Comunicati/Comunicati?delibera=False",
+        "url": f"https://trentinoaltoadige.fip.it/comunicati/",
         "section": "trentinoaltoadige",
         "mode": "comunicato",
         "required_url_substring": "public/24",
