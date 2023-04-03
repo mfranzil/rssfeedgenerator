@@ -34,6 +34,15 @@ def scrap_fip(url, mode, section):
 
         if not link.startswith("http"):
             log.warning(f"Invalid URL format: {link}")
+            continue
+
+        if section not in link:
+        # if not link.startswith("/".join(url.split('/')[:-2])):
+            log.warning(f"Invalid URL format: {link}")
+            continue
+
+        if mode not in link:
+            log.warning(f"Possible unwanted article found: {link}")
 
         list_of_articles.append(link)
 
