@@ -18,7 +18,7 @@ def scrap_nuova_ss(url):
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
     # Ottengo i primi 20 articoli di rilievo
-    article = 15
+    article = 10
 
     for div in soupdesktop.find_all("div", attrs={"class": "notizia"}):
         try:

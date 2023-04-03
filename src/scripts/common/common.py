@@ -13,7 +13,7 @@ DEFAULT_HEADER_DESKTOP = {
     "Accept-Language": "it,en-US;q=0.7,en;q=0.3"
 }
 
-DEFAULT_TIMEOUT_CONNECTION = 120
+DEFAULT_TIMEOUT_CONNECTION = 5
 
 
 def make_feed(rss_file, feed_title, feed_description, feed_generator):

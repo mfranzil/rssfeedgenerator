@@ -19,10 +19,14 @@ def scrap_fip(url, mode, section):
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
+    articles = 8
+
     tmp = []
     for div in soupdesktop.find_all('h3'):
         if div.find('a'):
             tmp.append(div.find('a')['href'])
+        if len(tmp) >= articles:
+            break
 
     for link in tmp:
         if link == "" or link is None:
