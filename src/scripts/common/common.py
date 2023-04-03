@@ -2,7 +2,7 @@
 
 import logging as log
 
-from src.config import CONFIG_URL, SEEN_FILENAME
+from src.config import SEEN_FILENAME
 
 from lxml import etree as ET
 from time import gmtime, strftime
@@ -27,9 +27,6 @@ def make_feed(rss_file, feed_title, feed_description, feed_generator):
 
     date = ET.SubElement(channel, "updatedate")
     date.text = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
-
-    link = ET.SubElement(channel, "link")
-    link.text = CONFIG_URL
 
     description = ET.SubElement(channel, "description")
     description.text = feed_description
