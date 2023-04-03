@@ -19,7 +19,7 @@ def scrap_fip(url, mode, section):
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    articles = 8
+    articles = 25
 
     tmp = []
     for div in soupdesktop.find_all('h3'):
