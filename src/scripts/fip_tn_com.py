@@ -8,7 +8,6 @@ def refresh_feed(rss_folder):
         "url": f"https://trentinoaltoadige.fip.it/comunicati/",
         "section": "trentinoaltoadige",
         "mode": "comunicato",
-        "required_url_substring": "public/24",
         "sentences": {
             "new_object": "un nuovo comunicato",
             "feed_title": "FIP - Trentino Alto Adige - Comunicati",

@@ -10,7 +10,6 @@ from src.config import FEED_FILENAME
 
 import logging as log
 
-list_of_articles = []
 header_desktop = DEFAULT_HEADER_DESKTOP
 timeout_connection = DEFAULT_TIMEOUT_CONNECTION
 
@@ -21,6 +20,7 @@ def scrap_fip(url, mode, section):
 
     articles = 25
 
+    list_of_articles = []
     tmp = []
     for div in soupdesktop.find_all('h3'):
         if div.find('a'):
@@ -53,15 +53,15 @@ def refresh_feed(rss_folder, request):
     url = request["url"]
     mode = request["mode"]
     section = request["section"]
-    # if request["required_url_substring"] and request["required_url_substring"] is not None:
-    #    required_url_substring = request["required_url_substring"].lower()
-    # else:
-    #     required_url_substring = None
 
     rss_file = os.path.join(rss_folder, FEED_FILENAME)
 
     # Acquisisco l'articolo principale
     list_of_articles = scrap_fip(url, mode, section)
+
+    print(list_of_articles)
+    print(f"Found {len(list_of_articles)} new article(s)")
+    input()
 
     # Se non esiste localmente un file XML procedo a crearlo.
     if not os.path.exists(rss_file):

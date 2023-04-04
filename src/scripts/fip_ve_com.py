@@ -8,7 +8,6 @@ def refresh_feed(rss_folder):
         "url": f"https://veneto.fip.it/comunicati/",
         "section": "veneto",
         "mode": "comunicato",
-        "required_url_substring": "public/11",
         "sentences": {
             "new_object": "un nuovo comunicato",
             "feed_title": "FIP - Veneto - Comunicati",

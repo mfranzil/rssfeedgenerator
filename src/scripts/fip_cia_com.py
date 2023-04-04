@@ -7,7 +7,6 @@ def refresh_feed(rss_folder):
         "url": f"https://cia.fip.it/comunicati/",
         "section": "cia",
         "mode": "comunicato",
-        "required_url_substring": None,
         "sentences": {
             "new_object": "un nuovo comunicato",
             "feed_title": "FIP - CIA - Comunicati",
