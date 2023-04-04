@@ -40,14 +40,12 @@ def refresh_feed(rss_folder):
     # Acquisisco l'articolo principale
     scrap_domani(url)
 
-    # Se non esiste localmente un file XML procedo a crearlo.
-    if os.path.exists(rss_file) is not True:
-        make_feed(
-            rss_file=rss_file,
-            feed_title="Domani RSS Feed",
-            feed_description="RSS feed degli articoli principali pubblicati da Domani",
-            feed_generator="Domani (from RSS Feed Generator)"
-            )
+    make_feed(
+        rss_file=rss_file,
+        feed_title="Ferrovie.it RSS Feed",
+        feed_description="RSS feed degli articoli principali pubblicati da Ferrovie.it",
+        feed_generator="Ferrovie.it (from RSS Feed Generator)"
+    )
 
     # Analizzo ogni singolo articolo rilevato
     for urlarticolo in list_of_articles:
