@@ -59,10 +59,6 @@ def refresh_feed(rss_folder, request):
     # Acquisisco l'articolo principale
     list_of_articles = scrap_fip(url, mode, section)
 
-    print(list_of_articles)
-    print(f"Found {len(list_of_articles)} new article(s)")
-    input()
-
     # Se non esiste localmente un file XML procedo a crearlo.
     if not os.path.exists(rss_file):
         make_feed(
