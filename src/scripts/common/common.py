@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import logging as log
+import os
 
 from src.config import SEEN_FILENAME
 
@@ -17,6 +18,11 @@ DEFAULT_TIMEOUT_CONNECTION = 5
 
 
 def make_feed(rss_file, feed_title, feed_description, feed_generator):
+    # Remove feed file if it already exists
+    log.info(f"Dropping existing RSS file: {rss_file}")
+    if os.path.exists(rss_file):
+        os.remove(rss_file)
+
     root = ET.Element("rss")
     root.set("version", "2.0")
 
