@@ -8,7 +8,6 @@ from readability import Document
 from src.scripts.common.common import DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION, make_feed, add_feed
 from src.config import FEED_FILENAME
 
-list_of_articles = []
 header_desktop = DEFAULT_HEADER_DESKTOP
 timeout_connection = DEFAULT_TIMEOUT_CONNECTION
 
@@ -17,6 +16,8 @@ disallowed_ids = ["video", "idee"]
 
 
 def scrap_domani(url):
+    list_of_articles = []
+
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 

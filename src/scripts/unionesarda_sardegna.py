@@ -8,17 +8,18 @@ from readability import Document
 from src.scripts.common.common import DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION, make_feed, add_feed
 from src.config import FEED_FILENAME
 
-list_of_articles = []
 header_desktop = DEFAULT_HEADER_DESKTOP
 timeout_connection = DEFAULT_TIMEOUT_CONNECTION
 
 
 def scrap_nuova_ss(url):
+    list_of_articles = []
+
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
     # Ottengo i primi 20 articoli di rilievo
-    article = 20 
+    article = 20
 
     for div in soupdesktop.find_all("h3", attrs={"class": "teaser-title"}):
         try:
