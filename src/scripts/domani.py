@@ -33,19 +33,21 @@ def scrap_domani(url):
             list_of_articles.append(div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"])
             article -= 1
 
+    return list_of_articles
+
 
 def refresh_feed(rss_folder):
     url = "https://www.editorialedomani.it/"
     rss_file = os.path.join(rss_folder, FEED_FILENAME)
 
     # Acquisisco l'articolo principale
-    scrap_domani(url)
+    list_of_articles = scrap_domani(url)
 
     make_feed(
         rss_file=rss_file,
-        feed_title="Ferrovie.it RSS Feed",
-        feed_description="RSS feed degli articoli principali pubblicati da Ferrovie.it",
-        feed_generator="Ferrovie.it (from RSS Feed Generator)"
+        feed_title="Domani RSS Feed",
+        feed_description="RSS feed degli articoli principali pubblicati da Domani",
+        feed_generator="Domani (from RSS Feed Generator)"
     )
 
     # Analizzo ogni singolo articolo rilevato

@@ -14,7 +14,7 @@ timeout_connection = DEFAULT_TIMEOUT_CONNECTION
 
 def scrap_ecleticlight(url):
     list_of_articles = []
-    
+
     pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
@@ -26,19 +26,21 @@ def scrap_ecleticlight(url):
             list_of_articles.append(div.find("header", attrs={"class": "entry-header"}).find("a")["href"])
             article -= 1
 
+    return list_of_articles
+
 
 def refresh_feed(rss_folder):
     url = "https://eclecticlight.co/category/macs/"
     rss_file = os.path.join(rss_folder, FEED_FILENAME)
 
     # Acquisisco l'articolo principale
-    scrap_ecleticlight(url)
+    list_of_articles = scrap_ecleticlight(url)
 
     make_feed(
         rss_file=rss_file,
-        feed_title="Ferrovie.it RSS Feed",
-        feed_description="RSS feed degli articoli principali pubblicati da Ferrovie.it",
-        feed_generator="Ferrovie.it (from RSS Feed Generator)"
+        feed_title="Ecletic Light RSS Feed",
+        feed_description="RSS feed degli articoli con tag 'Macs' pubblicati da Ecletic Light",
+        feed_generator="Ecletic Light (from RSS Feed Generator)"
     )
 
     # Analizzo ogni singolo articolo rilevato
@@ -52,3 +54,4 @@ def refresh_feed(rss_folder):
             feed_title=title,
             feed_description=description,
             feed_link=urlarticolo)
+        
