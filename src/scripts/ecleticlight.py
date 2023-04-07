@@ -54,4 +54,3 @@ def refresh_feed(rss_folder):
             feed_title=title,
             feed_description=description,
             feed_link=urlarticolo)
-        

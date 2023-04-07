@@ -33,9 +33,7 @@ def scrap_nuova_ss(url):
         except TypeError:
             print("Cannot find id for article")
 
-        # if __id not in disallowed_ids and article > 0:
-        #    list_of_articles.append(div.find("h3", attrs={"class": "teaser-title"}).find("a")["href"])
-        #    article -= 1
+    return list_of_articles
 
 
 def refresh_feed(rss_folder):
@@ -43,7 +41,7 @@ def refresh_feed(rss_folder):
     rss_file = os.path.join(rss_folder, FEED_FILENAME)
 
     # Acquisisco l'articolo principale
-    scrap_nuova_ss(url)
+    list_of_articles = scrap_nuova_ss(url)
 
     make_feed(
         rss_file=rss_file,
