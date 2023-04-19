@@ -21,7 +21,7 @@ pyOpenSSL==22.0.0
 PySocks==1.7.1
 readability-lxml==0.8.1
 requests==2.27.1
-setuptools==62.1.0
+setuptools==65.5.1
 soupsieve==2.3.1
 urllib3==1.26.9
 Werkzeug==2.2.3
