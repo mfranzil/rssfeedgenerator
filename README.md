@@ -4,11 +4,11 @@
 
 This project is an extension of the wonderful _RSS Feed Generator_ by [@drego85](https://github.com/drego85/RSSFeedGenerator).
 
-It is an Azure Functions-ready web API in Python + Flask. It provides RSS feeds for popular websites which do not provide them. The websites are scraped manually, so eventual changes to their layouts may break the feed.
+It is a web API in Python + Flask. It provides RSS feeds for popular websites which do not provide them. The websites are scraped manually, so eventual changes to their layouts may break the feed. If yo find a broken feed, please open an issue on the GitHub page.
+
+The API is available as a Docker image over `ghcr.io/mfranzil/rssfeedgenerator` and also provides support for Azure Functions.
 
 For additional information, visit the aforelinked GitHub page.
-
-A temporary instance of this project is currently available at [https://mfranzil-rssgenerator.azurewebsites.net/](https://mfranzil-rssgenerator.azurewebsites.net/).
 
 ## Installation
 
@@ -31,8 +31,11 @@ A `direnv` installation is recommended for automatically adding the `PYTHONPATH`
 ## Available sources
 
 * [Domani](https://editorialedomani.it/)
+* [Unione Sarda](https://www.unionesarda.it)
+* [Ferrovie.it](https://www.ferrovie.it/)
 * [Eclectic Light](https://eclecticlight.co/) - only news with the MacOS tag
-* [Federazione Italiana Pallacanestro](https://fip.it/) - official communications by the CIA (Comitato Italiano Arbitri), the Veneto committee (two separate feeds for communications and resolutions) and the Trentino-Alto-Adige committee
+* [AeroBA Fondazione Mach](https://aeroba.fmach.it/bollettino) -  news on pollen concentration in Trentino from Fondazione Bruno Mach
+* [Federazione Italiana Pallacanestro](https://fip.it/) - official communications by the CIA (Comitato Italiano Arbitri), the Veneto committee, and the Trentino-Alto-Adige committee
 
 ## Credits
 
