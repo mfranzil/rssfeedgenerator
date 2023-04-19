@@ -5,7 +5,7 @@ cffi==1.15.0
 chardet==4.0.0
 charset-normalizer==2.0.12
 click==8.1.2
-cryptography==36.0.2
+cryptography==39.0.1
 cssselect==1.1.0
 Flask==2.1.1
 idna==3.3
