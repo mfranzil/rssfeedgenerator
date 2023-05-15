@@ -6,5 +6,5 @@ RUN apk update && \
     rm -rf /var/cache/apk/*
 COPY . /usr/local/src/RSSFeedGenerator
 WORKDIR /usr/local/src/RSSFeedGenerator
-RUN pip3 install --no-binary -r requirements.txt
+RUN pip3 install --no-binary :all: -r requirements.txt
 ENTRYPOINT ["python3", "app.py"]
