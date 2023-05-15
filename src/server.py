@@ -33,9 +33,10 @@ def refresh_feed(feed):
 
     feed_file = os.path.join(feed_folder, FEED_FILENAME)
     elapsed = time.time() - os.path.getmtime(feed_file) \
-        if os.path.isfile(feed_file) else -1
+        if os.path.isfile(feed_file) else REFRESH_TIME + 1
 
     if elapsed < REFRESH_TIME:
+        log.info(f"Feed {feed} is up to date, elapsed time: {elapsed}")
         return
 
     log.info(f"Refreshing feed {feed}, elapsed time: {elapsed}")
@@ -45,6 +46,7 @@ def refresh_feed(feed):
 
 def refresh_all_feeds():
     while True:
+        log.info("Refreshing all feeds...")
         feeds = get_feed_list()
         for feed in feeds:
             refresh_feed(feed)
