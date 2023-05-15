@@ -1,8 +1,9 @@
-FROM ubuntu:jammy
-RUN apt-get update && \
-    apt-get install python3-pip git curl --yes && \
-    pip3 install -U pip setuptools waitress  && \
-    rm -rf /usr/share/doc/* /usr/share/info/* /var/lib/apt/lists/*
+FROM alpine:latest
+RUN apk update && \
+    apk add --no-cache python3-dev git curl gcc musl-dev libffi-dev libxml2-dev libxslt-dev openssl-dev && \
+    python3 -m ensurepip && \
+    pip3 install --upgrade pip waitress && \
+    rm -rf /var/cache/apk/*
 COPY . /usr/local/src/RSSFeedGenerator
 WORKDIR /usr/local/src/RSSFeedGenerator
 RUN pip3 install -r requirements.txt

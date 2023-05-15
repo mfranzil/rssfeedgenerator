@@ -19,11 +19,36 @@ cli.show_server_banner = lambda *x: None
 app = Flask(__name__)
 
 # Initialize logging
-log.basicConfig(level=log.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+log.basicConfig(level=log.INFO,
+                format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Initialize folders
 pathlib.Path(FEED_PATH).mkdir(parents=True, exist_ok=True)
 pathlib.Path(SEEN_FILENAME).touch(exist_ok=True)
+
+
+def refresh_feed(feed):
+    feed_folder = os.path.join(FEED_PATH, feed)
+    pathlib.Path(feed_folder).mkdir(parents=True, exist_ok=True)
+
+    feed_file = os.path.join(feed_folder, FEED_FILENAME)
+    elapsed = time.time() - os.path.getmtime(feed_file) \
+        if os.path.isfile(feed_file) else -1
+
+    if elapsed < REFRESH_TIME:
+        return
+
+    log.info(f"Refreshing feed {feed}, elapsed time: {elapsed}")
+    refresher = importlib.import_module(SCRIPT_MODULE_POSITION + feed)
+    refresher.refresh_feed(feed_folder)
+
+
+def refresh_all_feeds():
+    while True:
+        feeds = get_feed_list()
+        for feed in feeds:
+            refresh_feed(feed)
+        time.sleep(REFRESH_TIME)
 
 
 def get_feed_list():
@@ -83,18 +108,14 @@ def get_feed(feed):
 
     feed_folder = os.path.join(FEED_PATH, feed)
     pathlib.Path(feed_folder).mkdir(parents=True, exist_ok=True)
+
     feed_file = os.path.join(feed_folder, FEED_FILENAME)
-
-    # Check if the feed needs to be refreshed (if the date is older than the refresh time)
-    if not os.path.exists(feed_file) or os.path.getmtime(feed_file) < (time.time() - REFRESH_TIME):
-        # Start a thread to refresh the feed
-        log.info(f"Refreshing feed {feed}, elapsed time:" +
-                 f" {time.time() - os.path.getmtime(feed_file) if os.path.isfile(feed_file) else -1}")
-        refresher = importlib.import_module(SCRIPT_MODULE_POSITION + feed)
-        refresher.refresh_feed(feed_folder)
-
+    if not os.path.exists(feed_file):
+        log.info(f"Generating non-existent feed {feed}")
+        refresh_feed(feed)
     else:
-        log.info(f"Feed {feed} is up to date, elapsed time: {time.time() - os.path.getmtime(feed_file)}")
+        el = time.time() - os.path.getmtime(feed_file)
+        log.info(f"Feed {feed} is up to date, elapsed time: {el}")
 
     return send_from_directory(feed_folder, FEED_FILENAME), 200
 
