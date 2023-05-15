@@ -1,20 +1,100 @@
 # -*- coding: utf-8 -*-
+from __future__ import annotations
 
 import logging as log
 import os
-
-from src.config import SEEN_FILENAME
-
-from lxml import etree as ET
+import threading
 from time import gmtime, strftime
+from typing import Callable
+
+import requests
+from lxml import etree as et
+from readability import Document
+
+from src.config import SEEN_FILENAME, FEED_FILENAME, \
+    DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION
 
 
-DEFAULT_HEADER_DESKTOP = {
-    "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.14; rv:80.0) Gecko/20100101 Firefox/80.0",
-    "Accept-Language": "it,en-US;q=0.7,en;q=0.3"
-}
+def fetch_info(url: str, mapping: dict[str, tuple[str, str]]) -> tuple[str | None, str | None]:
+    try:
+        response = requests.get(url,
+                                headers=DEFAULT_HEADER_DESKTOP,
+                                timeout=DEFAULT_TIMEOUT_CONNECTION)
+    except Exception as e:
+        log.error(f"Failed to fetch {url}: {e}")
+        return None, None
 
-DEFAULT_TIMEOUT_CONNECTION = 5
+    if response.status_code % 400 == 0:
+        log.error(f"Client-side error, failed to fetch {url}: {response}")
+        return None, None
+    elif response.status_code % 500 == 0:
+        log.error(f"Server-side error, failed to fetch {url}: {response}")
+        return None, None
+    elif response.status_code != 200:
+        log.warning(f"Unexpected response code {response.status_code} for {url}")
+        return None, None
+
+    description = Document(response.text).summary()
+    title = Document(response.text).short_title()
+
+    mapping[url] = title, description
+    return title, description
+
+
+def refresh_feed(rss_folder: str,
+                 base_url: str,
+                 article_url: str,
+                 scrapping_function: Callable[[str], list[str]],
+                 feed_title: str,
+                 feed_description: str,
+                 feed_generator: str):
+    rss_file = os.path.join(rss_folder, FEED_FILENAME)
+
+    # Acquisisco l'articolo principale
+    list_of_articles = scrapping_function(base_url)
+    list_of_articles = [article_url + article for article in list_of_articles]
+
+    log.info(f"Obtained {len(list_of_articles)} articles from {base_url}.")
+
+    make_feed(
+        rss_file=rss_file,
+        feed_title=feed_title,
+        feed_description=feed_description,
+        feed_generator=feed_generator
+    )
+
+    # fetch title and description in parallel
+    data = {}
+    for entry_link in list_of_articles:
+        data[entry_link] = None, None
+
+    t = []
+    for entry_link in list_of_articles:
+        if "pdf" in entry_link:
+            entry_title = entry_link.split("/")[-1]
+            entry_description = f"Nuovo documento disponibile per il download." \
+                                f"\n<a href=\"{entry_link}\">{entry_link}</a>"
+            data[entry_link] = entry_title, entry_description
+            # description = f"E' disponibile un nuovo bollettino per il download." + \
+            #                       f"\n<a href=\"{urlarticolo}\">{urlarticolo}</a>"
+            #         title = "Nuovo bollettino AeroBA!"
+            # description = f"E' disponibile {request['sentences']['new_object']}" \
+            #              + f" per il download.\n<a href=\"{urlarticolo}\">{urlarticolo}</a>"
+            # title = urlarticolo.split("/")[-1]
+        else:
+            thread = threading.Thread(target=fetch_info,
+                                      args=(entry_link, data))
+            t.append(thread)
+            thread.start()
+
+    for thread in t:
+        thread.join()
+
+    for entry_link in list_of_articles:
+        entry_title, entry_description = data[entry_link]
+        add_entry(rss_file, entry_link, entry_title, entry_description)
+
+    log.info(f"Feed {rss_file} refreshed.")
 
 
 def make_feed(rss_file, feed_title, feed_description, feed_generator):
@@ -22,70 +102,69 @@ def make_feed(rss_file, feed_title, feed_description, feed_generator):
         log.info(f"RSS file {rss_file} already exists, skipping...")
         return
 
-    root = ET.Element("rss")
+    root = et.Element("rss")
     root.set("version", "2.0")
 
-    channel = ET.SubElement(root, "channel")
+    channel = et.SubElement(root, "channel")
 
-    title = ET.SubElement(channel, "title")
+    title = et.SubElement(channel, "title")
     title.text = feed_title
 
-    date = ET.SubElement(channel, "updatedate")
+    date = et.SubElement(channel, "updatedate")
     date.text = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
 
-    description = ET.SubElement(channel, "description")
+    description = et.SubElement(channel, "description")
     description.text = feed_description
 
-    language = ET.SubElement(channel, "language")
+    language = et.SubElement(channel, "language")
     language.text = "it-IT"
 
-    generator = ET.SubElement(channel, "generator")
+    generator = et.SubElement(channel, "generator")
     generator.text = feed_generator
 
-    tree = ET.ElementTree(root)
+    tree = et.ElementTree(root)
 
-    log.info(f"Saving RSS file to {rss_file}")
     tree.write(rss_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
-    log.info("RSS file saved.")
+    log.info(f"RSS file now available at {rss_file}")
 
 
-def add_feed(rss_file, feed_title, feed_description, feed_link):
+def add_entry(feed_file: str, entry_link: str, entry_title: str, entry_description: str):
     # First check if the feed link has already been seen in the past
     with open(SEEN_FILENAME, "r") as f:
         seen_links = f.read().splitlines()
 
-    if seen_links and feed_link in seen_links:
-        log.info(f"Feed link {feed_link} already seen, skipping...")
+    if seen_links and entry_link in seen_links:
+        log.debug(f"Feed link {entry_link} already seen, skipping...")
         return
 
-    parser = ET.XMLParser(remove_blank_text=True)
-    tree = ET.parse(rss_file, parser)
+    parser = et.XMLParser(remove_blank_text=True)
+    tree = et.parse(feed_file, parser)
     channel = tree.getroot()
 
     # Escludo eventuali duplicati in base al link
     for i in channel.findall(".//link"):
-        if (i.text == feed_link):
+        if i.text == entry_link:
             return
 
-    item = ET.SubElement(channel, "item")
+    item = et.SubElement(channel, "item")
 
-    title = ET.SubElement(item, "title")
-    title.text = feed_title
+    title = et.SubElement(item, "title")
+    title.text = entry_title
 
-    link = ET.SubElement(item, "link")
-    link.text = feed_link
+    link = et.SubElement(item, "link")
+    link.text = entry_link
 
-    description = ET.SubElement(item, "description")
-    description.text = feed_description
+    description = et.SubElement(item, "description")
+    description.text = entry_description
 
-    pubDate = ET.SubElement(item, "pubDate")
-    pubDate.text = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
+    pub_date = et.SubElement(item, "pubDate")
+    pub_date.text = strftime("%a, %d %b %Y %H:%M:%S +0000", gmtime())
 
     channel.find(".//generator").addnext(item)
 
-    tree = ET.ElementTree(channel)
-    tree.write(rss_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
+    tree = et.ElementTree(channel)
+    tree.write(feed_file, pretty_print=True, xml_declaration=True, encoding="UTF-8")
 
     with open(SEEN_FILENAME, "a") as f:
-        f.write(feed_link + "\n")
-        log.info(f"Feed link {feed_link} cached.")
+        f.write(entry_link + "\n")
+        log.debug(f"Feed link {entry_link} cached.")

@@ -1,25 +1,18 @@
 # -*- coding: utf-8 -*-
-import os
 import requests
-
 from bs4 import BeautifulSoup
-from readability import Document
 
-from src.scripts.common.common import DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION, make_feed, add_feed
-from src.config import FEED_FILENAME
-
-header_desktop = DEFAULT_HEADER_DESKTOP
-timeout_connection = DEFAULT_TIMEOUT_CONNECTION
+from src.config import DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION
+from src.scripts.common.common import refresh_feed as common_refresh_feed
 
 
 def scrap_nuova_ss(url):
     list_of_articles = []
 
-    pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
+    pagedesktop = requests.get(url, headers=DEFAULT_HEADER_DESKTOP, timeout=DEFAULT_TIMEOUT_CONNECTION)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    # Ottengo i primi 20 articoli di rilievo
-    article = 20
+    articles = 15
 
     for div in soupdesktop.find_all("h3", attrs={"class": "teaser-title"}):
         try:
@@ -29,7 +22,10 @@ def scrap_nuova_ss(url):
                 continue
 
             list_of_articles.append(__id)
-            article -= 1
+            articles -= 1
+
+            if articles == 0:
+                break
         except TypeError:
             print("Cannot find id for article")
 
@@ -37,33 +33,12 @@ def scrap_nuova_ss(url):
 
 
 def refresh_feed(rss_folder):
-    url = "https://www.unionesarda.it/news-sardegna"
-    rss_file = os.path.join(rss_folder, FEED_FILENAME)
-
-    # Acquisisco l'articolo principale
-    list_of_articles = scrap_nuova_ss(url)
-
-    make_feed(
-        rss_file=rss_file,
+    return common_refresh_feed(
+        rss_folder=rss_folder,
+        base_url="https://www.unionesarda.it/news-sardegna",
+        article_url="https://www.unionesarda.it",
+        scrapping_function=scrap_nuova_ss,
         feed_title="Unione Sarda RSS Feed",
         feed_description="RSS feed degli articoli principali pubblicati da Unione Sarda",
         feed_generator="Unione Sarda (from RSS Feed Generator)"
     )
-
-    # Analizzo ogni singolo articolo rilevato
-    for urlarticolo in list_of_articles:
-        try:
-            response = requests.get(
-                "https://www.unionesarda.it" + urlarticolo,
-                headers=header_desktop,
-                timeout=timeout_connection)
-
-            description = Document(response.text).summary()
-            title = Document(response.text).short_title()
-            add_feed(
-                rss_file=rss_file,
-                feed_title=title,
-                feed_description=description,
-                feed_link="https://www.unionesarda.it" + urlarticolo)
-        except Exception as e:
-            print("Failed to add article: " + str(e))

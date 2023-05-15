@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
-import os
-import sys
 import importlib
 import logging as log
+import os
 import pathlib
+import socket
+import sys
 import threading
 import time
-import socket
+
+from flask import Flask, send_from_directory
 
 from src.config import FEED_FILENAME, FEED_PATH, \
     LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, \
     SCRIPT_PATH, SEEN_FILENAME
-
-from flask import Flask, send_from_directory
 
 cli = sys.modules['flask.cli']
 cli.show_server_banner = lambda *x: None
@@ -45,38 +45,43 @@ def refresh_feed(feed):
     try:
         refresher.refresh_feed(feed_folder)
     except socket.timeout as e:
-        log.error(f"Timeout while refreshing feed {feed}: {e}")
+        log.error(f"Timeout while refreshing feed {feed}!")
+        log.exception(e)
     except Exception as e:
-        log.error(f"Error while refreshing feed {feed}: {e}")
+        log.error(f"Error while refreshing feed {feed}!")
+        log.exception(e)
 
 
 def refresh_all_feeds():
     h = 0
-    while True:
-        log.info("Refreshing all feeds...")
-        feeds = get_feed_list()
-        for feed in feeds:
-            refresh_feed(feed)
-        time.sleep(REFRESH_TIME)
-        h += 1
+    feeds = get_feed_list()
 
+    while True:
         if h % 48 == 0:
             log.info("Cleaning up all feeds...")
             for feed in feeds:
                 feed_folder = os.path.join(FEED_PATH, feed)
                 feed_file = os.path.join(feed_folder, FEED_FILENAME)
-                log.info(f"Dropping existing RSS file: {feed_file}")
-                os.remove(feed_file)
+                if os.path.isfile(feed_file):
+                    log.info(f"Dropping existing RSS file: {feed_file}")
+                    os.remove(feed_file)
             h = 0
+
+        log.info("Refreshing all feeds...")
+        for feed in feeds:
+            refresh_feed(feed)
+            time.sleep(2)
+        time.sleep(REFRESH_TIME)
+        h += 1
 
 
 def get_feed_list():
     feeds = []
     for item in os.listdir(SCRIPT_PATH):
         if os.path.isfile(os.path.join(SCRIPT_PATH, item)) and item.endswith('.py') and not \
-          (item.startswith('_') or item.startswith('test_') or item.startswith('.')):
+                (item.startswith('_') or item.startswith('test_') or item.startswith('.')):
             feeds.append(item.replace(".py", ""))
-    return feeds
+    return sorted(feeds)
 
 
 @app.route('/', methods=['GET'])
@@ -131,7 +136,9 @@ def get_feed(feed):
     feed_file = os.path.join(feed_folder, FEED_FILENAME)
     if not os.path.exists(feed_file):
         log.info(f"Generating non-existent feed {feed}")
-        refresh_feed(feed)
+        # send 503 to indicate that the feed is being generated
+        threading.Thread(target=refresh_feed, args=(feed,)).start()
+        return 'Feed not ready', 503
     else:
         el = time.time() - os.path.getmtime(feed_file)
         log.info(f"Feed {feed} is up to date, elapsed time: {el}")
@@ -147,12 +154,12 @@ def refresh():
 
 # default page for 404
 @app.route('/<path:dummy>')
-def dummy(dummy):
+def dummy(_):
     return 'Not found', 404
 
 
 @app.errorhandler(404)
-def page_not_found(e):
+def page_not_found(_):
     return 'Not found', 404
 
 

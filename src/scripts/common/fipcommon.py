@@ -1,24 +1,18 @@
 # -*- coding: utf-8 -*-
-import os
-import requests
-
-from bs4 import BeautifulSoup
-from readability import Document
-
-from src.scripts.common.common import DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION, make_feed, add_feed
-from src.config import FEED_FILENAME
-
 import logging as log
 
-header_desktop = DEFAULT_HEADER_DESKTOP
-timeout_connection = DEFAULT_TIMEOUT_CONNECTION
+import requests
+from bs4 import BeautifulSoup
+
+from src.config import DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION
+from src.scripts.common.common import refresh_feed as common_refresh_feed
 
 
-def scrap_fip(url, mode, section):
-    pagedesktop = requests.get(url, headers=header_desktop, timeout=timeout_connection)
+def scrap_fip(url):
+    pagedesktop = requests.get(url, headers=DEFAULT_HEADER_DESKTOP, timeout=DEFAULT_TIMEOUT_CONNECTION)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    articles = 25
+    articles = 20
 
     list_of_articles = []
     tmp = []
@@ -36,13 +30,13 @@ def scrap_fip(url, mode, section):
             log.warning(f"Invalid URL format: {link}")
             continue
 
-        if section not in link:
-        # if not link.startswith("/".join(url.split('/')[:-2])):
-            log.warning(f"Invalid URL format: {link}")
-            continue
+        # if section not in link:
+        #     # if not link.startswith("/".join(url.split('/')[:-2])):
+        #    log.warning(f"Invalid URL format: {link}")
+        #   continue
 
-        if mode not in link:
-            log.warning(f"Possible unwanted article found: {link}")
+        # if mode not in link:
+        #    log.warning(f"Possible unwanted article found: {link}")
 
         list_of_articles.append(link)
 
@@ -51,47 +45,13 @@ def scrap_fip(url, mode, section):
 
 def refresh_feed(rss_folder, request):
     url = request["url"]
-    mode = request["mode"]
-    section = request["section"]
 
-    rss_file = os.path.join(rss_folder, FEED_FILENAME)
-
-    # Acquisisco l'articolo principale
-    list_of_articles = scrap_fip(url, mode, section)
-
-    make_feed(
-        rss_file=rss_file,
+    return common_refresh_feed(
+        rss_folder=rss_folder,
+        base_url=url,
+        article_url='/'.join(url.split('/')[:-1]),
+        scrapping_function=scrap_fip,
         feed_title=request["sentences"]["feed_title"],
         feed_description=request["sentences"]["feed_description"],
-        feed_generator=request["sentences"]["feed_generatore"]
+        feed_generator=request["sentences"]["feed_generator"]
     )
-
-    # Analizzo ogni singolo articolo rilevato
-    for urlarticolo in sorted(list_of_articles):
-        try:
-            response = requests.get(urlarticolo, headers=header_desktop, timeout=timeout_connection)
-        except Exception as e:
-            log.error(f"Aborting scrapping of article {urlarticolo} because an error occurred : {e}")
-            continue
-
-        if response.status_code == 404:
-            log.warning(f"The requested page does not exists: {urlarticolo}")
-            continue
-
-        if "pdf" in urlarticolo:
-            description = f"E' disponibile {request['sentences']['new_object']}" \
-                + f" per il download.\n<a href=\"{urlarticolo}\">{urlarticolo}</a>"
-            title = urlarticolo.split("/")[-1]
-        else:
-            description = Document(response.text).summary()
-            title = Document(response.text).short_title()
-
-        if not title or title is None or title == "":
-            title = urlarticolo
-
-        add_feed(
-            rss_file=rss_file,
-            feed_title=title,
-            feed_description=description,
-            feed_link=urlarticolo
-        )

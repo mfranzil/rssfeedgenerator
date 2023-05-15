@@ -6,13 +6,10 @@ from src.scripts.common.fipcommon import refresh_feed as refresh_feed_common
 def refresh_feed(rss_folder):
     request = {
         "url": f"https://trentinoaltoadige.fip.it/comunicati/",
-        "section": "trentinoaltoadige",
-        "mode": "comunicato",
         "sentences": {
-            "new_object": "un nuovo comunicato",
             "feed_title": "FIP - Trentino Alto Adige - Comunicati",
             "feed_description": "RSS feed dei comunicati di FIP Trentino Alto Adige",
-            "feed_generatore": "FIP - Trentino Alto Adige - Comunicati (from RSS Feed Generator)"
+            "feed_generator": "FIP - Trentino Alto Adige - Comunicati (from RSS Feed Generator)"
         }
     }
     refresh_feed_common(rss_folder, request)
