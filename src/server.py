@@ -6,6 +6,7 @@ import logging as log
 import pathlib
 import threading
 import time
+import socket
 
 from src.config import FEED_FILENAME, FEED_PATH, \
     LOCAL_PORT, REFRESH_TIME, SCRIPT_MODULE_POSITION, \
@@ -41,16 +42,32 @@ def refresh_feed(feed):
 
     log.info(f"Refreshing feed {feed}, elapsed time: {elapsed}")
     refresher = importlib.import_module(SCRIPT_MODULE_POSITION + feed)
-    refresher.refresh_feed(feed_folder)
+    try:
+        refresher.refresh_feed(feed_folder)
+    except socket.timeout as e:
+        log.error(f"Timeout while refreshing feed {feed}: {e}")
+    except Exception as e:
+        log.error(f"Error while refreshing feed {feed}: {e}")
 
 
 def refresh_all_feeds():
+    h = 0
     while True:
         log.info("Refreshing all feeds...")
         feeds = get_feed_list()
         for feed in feeds:
             refresh_feed(feed)
         time.sleep(REFRESH_TIME)
+        h += 1
+
+        if h % 48 == 0:
+            log.info("Cleaning up all feeds...")
+            for feed in feeds:
+                feed_folder = os.path.join(FEED_PATH, feed)
+                feed_file = os.path.join(feed_folder, FEED_FILENAME)
+                log.info(f"Dropping existing RSS file: {feed_file}")
+                os.remove(feed_file)
+            h = 0
 
 
 def get_feed_list():
@@ -120,6 +137,12 @@ def get_feed(feed):
         log.info(f"Feed {feed} is up to date, elapsed time: {el}")
 
     return send_from_directory(feed_folder, FEED_FILENAME), 200
+
+
+@app.route('/refresh', methods=['GET'])
+def refresh():
+    refresh_all_feeds()
+    return 'Refreshed', 200
 
 
 # default page for 404
