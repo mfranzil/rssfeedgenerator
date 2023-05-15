@@ -6,13 +6,13 @@ This project is an extension of the wonderful _RSS Feed Generator_ by [@drego85]
 
 It is a web API in Python + Flask. It provides RSS feeds for popular websites which do not provide them. The websites are scraped manually, so eventual changes to their layouts may break the feed. If yo find a broken feed, please open an issue on the GitHub page.
 
-The API is available as a Docker image over `ghcr.io/mfranzil/rssfeedgenerator` and also provides support for Azure Functions.
+The API is available as a Docker image over `ghcr.io/mfranzil/rssfeedgenerator`.
 
 For additional information, visit the aforelinked GitHub page.
 
 ## Installation
 
-Using any virtual enviroment is recommended. This project was developed using `miniforge 4.12.0` and `python 3.9.7` on macOS Monterey `12.3.1`. Please take note that `python 3.10` or later is not currently (2022-05-07) supported on Azure Functions.
+Using any virtual enviroment is recommended. This project was developed using `miniforge/conda 23.1.0` and `python 3.11.3` on macOS Ventura `13.3.1 (a)`.
 
 To get started, first install the dependencies.
 
