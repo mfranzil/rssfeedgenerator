@@ -53,7 +53,7 @@ def refresh_feed(feed):
 
 
 def refresh_all_feeds():
-    h = 0
+    h = 1
     feeds = get_feed_list()
 
     while True:
@@ -150,12 +150,6 @@ def get_feed(feed):
 def refresh():
     refresh_all_feeds()
     return 'Refreshed', 200
-
-
-# default page for 404
-@app.route('/<path:dummy>')
-def dummy(_):
-    return 'Not found', 404
 
 
 @app.errorhandler(404)

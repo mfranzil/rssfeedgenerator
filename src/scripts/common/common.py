@@ -90,11 +90,28 @@ def refresh_feed(rss_folder: str,
     for thread in t:
         thread.join()
 
+    original_len = feed_len(rss_file)
+
     for entry_link in list_of_articles:
         entry_title, entry_description = data[entry_link]
-        add_entry(rss_file, entry_link, entry_title, entry_description)
 
-    log.info(f"Feed {rss_file} refreshed.")
+        ok = add_entry(rss_file, entry_link, entry_title, entry_description)
+        if ok == 0:
+            log.debug(f"Added new entry {entry_link} to feed {rss_file}.")
+        elif ok == 1:
+            log.debug(f"Entry {entry_link} already present in feed {rss_file}.")
+        elif ok == -1:
+            log.debug(f"Entry {entry_link} not added to feed {rss_file} because it is already present in the seen file.")
+        else:
+            log.error(f"Failed to add entry {entry_link} to feed {rss_file}.")
+
+    log.info(f"Feed {rss_file} refreshed. Added {feed_len(rss_file) - original_len} new entries (total: {feed_len(rss_file)}).")
+
+
+def feed_len(rss_file: str) -> int:
+    tree = et.parse(rss_file)
+    channel = tree.getroot()
+    return len(channel.findall("channel/item"))
 
 
 def make_feed(rss_file, feed_title, feed_description, feed_generator):
@@ -128,14 +145,15 @@ def make_feed(rss_file, feed_title, feed_description, feed_generator):
     log.info(f"RSS file now available at {rss_file}")
 
 
-def add_entry(feed_file: str, entry_link: str, entry_title: str, entry_description: str):
+def add_entry(feed_file: str, entry_link: str,
+              entry_title: str, entry_description: str):
     # First check if the feed link has already been seen in the past
     with open(SEEN_FILENAME, "r") as f:
         seen_links = f.read().splitlines()
 
     if seen_links and entry_link in seen_links:
         log.debug(f"Feed link {entry_link} already seen, skipping...")
-        return
+        return -1
 
     parser = et.XMLParser(remove_blank_text=True)
     tree = et.parse(feed_file, parser)
@@ -144,7 +162,7 @@ def add_entry(feed_file: str, entry_link: str, entry_title: str, entry_descripti
     # Escludo eventuali duplicati in base al link
     for i in channel.findall(".//link"):
         if i.text == entry_link:
-            return
+            return 1
 
     item = et.SubElement(channel, "item")
 
@@ -168,3 +186,5 @@ def add_entry(feed_file: str, entry_link: str, entry_title: str, entry_descripti
     with open(SEEN_FILENAME, "a") as f:
         f.write(entry_link + "\n")
         log.debug(f"Feed link {entry_link} cached.")
+
+    return 0
