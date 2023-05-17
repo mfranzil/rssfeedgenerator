@@ -49,7 +49,7 @@ def refresh_feed(rss_folder, request):
     return common_refresh_feed(
         rss_folder=rss_folder,
         base_url=url,
-        article_url='/'.join(url.split('/')[:-1]),
+        article_url='',  #'/'.join(url.split('/')[:-1]),
         scrapping_function=scrap_fip,
         feed_title=request["sentences"]["feed_title"],
         feed_description=request["sentences"]["feed_description"],
