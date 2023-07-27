@@ -7,6 +7,8 @@ import socket
 import sys
 import threading
 import time
+import argparse
+import shutil
 
 from flask import Flask, send_from_directory
 
@@ -158,6 +160,16 @@ def page_not_found(_):
 
 
 if __name__ == '__main__':
+    ap = argparse.ArgumentParser()
+    ap.add_argument("-f", "--flush", action="store_true", help="Removes all generated feeds")
+    args = ap.parse_args()
+
+    if args.flush:
+        shutil.rmtree(FEED_PATH)
+        pathlib.Path(FEED_PATH).mkdir(parents=True, exist_ok=True)
+        pathlib.Path(SEEN_FILENAME).touch(exist_ok=True)
+
     log.info(f"RSS server listening on port {LOCAL_PORT}")
     log.info(f"List of currently offered feeds: {', '.join(get_feed_list())}")
     app.run(host='0.0.0.0', port=LOCAL_PORT)
+
