@@ -31,6 +31,7 @@ A `direnv` installation is recommended for automatically adding the `PYTHONPATH`
 ## Available sources
 
 * [Domani](https://editorialedomani.it/)
+* [L'Adige](https://ladige.it/) - only *Cronaca* and *Territori* sections (essentially only local news)
 * [Unione Sarda](https://www.unionesarda.it)
 * [Ferrovie.it](https://www.ferrovie.it/)
 * [Eclectic Light](https://eclecticlight.co/) - only news with the MacOS tag
