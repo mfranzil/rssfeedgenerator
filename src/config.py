@@ -16,3 +16,4 @@ DEFAULT_HEADER_DESKTOP = {
     "Accept-Language": "it,en-US;q=0.7,en;q=0.3"
 }
 DEFAULT_TIMEOUT_CONNECTION = 5
+MAX_DOWNLOAD_RETRIES = 3

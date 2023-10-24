@@ -12,7 +12,8 @@ from lxml import etree as et
 from readability import Document
 
 from src.config import SEEN_FILENAME, FEED_FILENAME, \
-    DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION
+    DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION, \
+    MAX_DOWNLOAD_RETRIES
 
 
 def fetch_info(url: str, mapping: dict[str, tuple[str, str]]) -> tuple[str | None, str | None]:
@@ -51,7 +52,23 @@ def refresh_feed(rss_folder: str,
     rss_file = os.path.join(rss_folder, FEED_FILENAME)
 
     # Acquisisco l'articolo principale
-    list_of_articles = scrapping_function(base_url)
+    list_of_articles = []
+    for i in range(MAX_DOWNLOAD_RETRIES):
+        try:
+            list_of_articles = scrapping_function(base_url)
+        except requests.exceptions.ReadTimeout:
+            log.error(f"Timeout while fetching {base_url}, " +
+                      f"retrying ({MAX_DOWNLOAD_RETRIES - i - 1} attemps left)...")
+            continue
+        except Exception as e:
+            log.error(f"Encountered exception while fetching {base_url}: {e}")
+            continue
+        break
+
+    if not list_of_articles:
+        log.error(f"Failed to fetch {base_url}, aborting...")
+        return
+
     list_of_articles = [article_url + article for article in list_of_articles]
 
     log.info(f"Obtained {len(list_of_articles)} articles from {base_url}.")
@@ -101,11 +118,14 @@ def refresh_feed(rss_folder: str,
         elif ok == 1:
             log.debug(f"Entry {entry_link} already present in feed {rss_file}.")
         elif ok == -1:
-            log.debug(f"Entry {entry_link} not added to feed {rss_file} because it is already present in the seen file.")
+            log.debug(f"Entry {entry_link} not added to feed {rss_file}" +
+                      f" because it is already present in the seen file.")
         else:
             log.error(f"Failed to add entry {entry_link} to feed {rss_file}.")
 
-    log.info(f"Feed {rss_file} refreshed. Added {feed_len(rss_file) - original_len} new entries (total: {feed_len(rss_file)}).")
+    log.info(f"Feed {rss_file} refreshed. " +
+             f"Added {feed_len(rss_file) - original_len} new entries" +
+             f" (total: {feed_len(rss_file)}).")
 
 
 def feed_len(rss_file: str) -> int:
