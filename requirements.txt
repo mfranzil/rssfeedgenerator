@@ -24,7 +24,7 @@ readability-lxml==0.8.1
 requests==2.29.0
 setuptools==67.7.2
 soupsieve==2.3.2.post1
-urllib3==1.26.15
+urllib3==1.26.18
 waitress==2.1.2
 Werkzeug==3.0.3
 wheel==0.40.0
