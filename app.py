@@ -7,4 +7,4 @@ if __name__ == '__main__':
     refresh_thread.start()
 
     # Start the server
-    serve(app, host="0.0.0.0", port=35573)
+    serve(app, host="0.0.0.0", port=LOCAL_PORT)
