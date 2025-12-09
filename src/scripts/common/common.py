@@ -123,9 +123,13 @@ def refresh_feed(rss_folder: str,
         else:
             log.error(f"Failed to add entry {entry_link} to feed {rss_file}.")
 
+    length = feed_len(rss_file)
+    new = length - original_len
     log.info(f"Feed {rss_file} refreshed. " +
-             f"Added {feed_len(rss_file) - original_len} new entries" +
-             f" (total: {feed_len(rss_file)}).")
+             f"Added {new} new entries" +
+             f" (total: {length}).")
+
+    return new
 
 
 def feed_len(rss_file: str) -> int:
