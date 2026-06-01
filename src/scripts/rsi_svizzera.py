@@ -13,7 +13,7 @@ def scrap_rsi(url):
     pagedesktop = requests.get(url, headers=DEFAULT_HEADER_DESKTOP, timeout=DEFAULT_TIMEOUT_CONNECTION)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    article = 15
+    article = 20
 
     for div in soupdesktop.find_all("div", attrs={"class": "c-smart-teaser"}):
         try:

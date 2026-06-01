@@ -13,13 +13,13 @@ def scrap_swissinfo(url):
     pagedesktop = requests.get(url, headers=DEFAULT_HEADER_DESKTOP, timeout=DEFAULT_TIMEOUT_CONNECTION)
     soupdesktop = BeautifulSoup(pagedesktop.text, "html.parser")
 
-    article = 15
+    article = 25
 
     for a in soupdesktop.find_all("a", attrs={"class": "teaser-card__link"}):
         try:
             href = a["href"]
 
-            if "/ita/" not in href:
+            if "/ita/" not in href or '/eng/' not in href:
                 continue
 
             if href not in list_of_articles:
