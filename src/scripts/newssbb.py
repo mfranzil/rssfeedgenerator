@@ -43,7 +43,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url="https://news.sbb.ch/en",
         article_url="",
-        scrapping_function=scrap_sbb_news,
+        scraping_function=scrap_sbb_news,
         feed_title="SBB News RSS Feed",
         feed_description="RSS feed of the latest news published by SBB",
         feed_generator="SBB News (from RSS Feed Generator)"

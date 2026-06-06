@@ -19,7 +19,7 @@ def scrap_swissinfo(url):
         try:
             href = a["href"]
 
-            if "/ita/" not in href or '/eng/' not in href:
+            if "/ita/" not in href:
                 continue
 
             if href not in list_of_articles:
@@ -39,7 +39,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url="https://www.swissinfo.ch/ita/",
         article_url="",
-        scrapping_function=scrap_swissinfo,
+        scraping_function=scrap_swissinfo,
         feed_title="Swissinfo RSS Feed",
         feed_description="RSS feed degli articoli principali pubblicati da Swissinfo in italiano",
         feed_generator="Swissinfo (from RSS Feed Generator)"

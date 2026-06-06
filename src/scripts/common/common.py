@@ -45,7 +45,7 @@ def fetch_info(url: str, mapping: dict[str, tuple[str, str]]) -> tuple[str | Non
 def refresh_feed(rss_folder: str,
                  base_url: str,
                  article_url: str,
-                 scrapping_function: Callable[[str], list[str]],
+                 scraping_function: Callable[[str], list[str]],
                  feed_title: str,
                  feed_description: str,
                  feed_generator: str):
@@ -55,7 +55,7 @@ def refresh_feed(rss_folder: str,
     list_of_articles = []
     for i in range(MAX_DOWNLOAD_RETRIES):
         try:
-            list_of_articles = scrapping_function(base_url)
+            list_of_articles = scraping_function(base_url)
         except requests.exceptions.ReadTimeout:
             log.error(f"Timeout while fetching {base_url}, " +
                       f"retrying ({MAX_DOWNLOAD_RETRIES - i - 1} attemps left)...")
@@ -66,7 +66,7 @@ def refresh_feed(rss_folder: str,
         break
 
     if not list_of_articles:
-        log.error(f"Failed to fetch {base_url}, aborting...")
+        log.error(f"Failed to fetch base URL {base_url}, aborting...")
         return
 
     list_of_articles = [article_url + article for article in list_of_articles]

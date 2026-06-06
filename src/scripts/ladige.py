@@ -40,7 +40,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url=url,
         article_url=url[:-1],
-        scrapping_function=scrap_domani,
+        scraping_function=scrap_domani,
         feed_title="L'Adige RSS Feed",
         feed_description="RSS feed degli articoli principali pubblicati da L'Adige",
         feed_generator="L'Adige (from RSS Feed Generator)"

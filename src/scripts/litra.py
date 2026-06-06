@@ -40,7 +40,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url="https://www.litra.ch/fr/",
         article_url="https://www.litra.ch",
-        scrapping_function=scrap_litra,
+        scraping_function=scrap_litra,
         feed_title="LITRA RSS Feed",
         feed_description="RSS feed des actualités publiées par LITRA",
         feed_generator="LITRA (from RSS Feed Generator)"

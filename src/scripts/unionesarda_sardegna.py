@@ -37,7 +37,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url="https://www.unionesarda.it/news-sardegna",
         article_url="https://www.unionesarda.it",
-        scrapping_function=scrap_nuova_ss,
+        scraping_function=scrap_nuova_ss,
         feed_title="Unione Sarda RSS Feed",
         feed_description="RSS feed degli articoli principali pubblicati da Unione Sarda",
         feed_generator="Unione Sarda (from RSS Feed Generator)"

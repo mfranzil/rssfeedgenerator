@@ -29,7 +29,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url="https://eclecticlight.co/category/macs/",
         article_url="",
-        scrapping_function=scrap_ecleticlight,
+        scraping_function=scrap_ecleticlight,
         feed_title="EcleticLight RSS Feed",
         feed_description="RSS feed degli articoli principali pubblicati da EcleticLight",
         feed_generator="EcleticLight (from RSS Feed Generator)"

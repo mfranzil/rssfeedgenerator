@@ -43,7 +43,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url="https://www.rsi.ch/info/svizzera/",
         article_url="https://www.rsi.ch",
-        scrapping_function=scrap_rsi,
+        scraping_function=scrap_rsi,
         feed_title="RSI Info Svizzera RSS Feed",
         feed_description="RSS feed degli articoli principali pubblicati da RSI Info Svizzera",
         feed_generator="RSI Info (from RSS Feed Generator)"

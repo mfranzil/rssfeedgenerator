@@ -35,7 +35,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url="https://www.ferrovie.it/portale/index.php",
         article_url="",
-        scrapping_function=scrap_nuova_ss,
+        scraping_function=scrap_nuova_ss,
         feed_title="Ferrovie.it RSS Feed",
         feed_description="RSS feed degli articoli principali pubblicati da Ferrovie.it",
         feed_generator="Ferrovie.it (from RSS Feed Generator)"

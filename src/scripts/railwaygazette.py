@@ -15,19 +15,18 @@ def scrap_railwaygazette(url):
 
     article = 15
 
-    for h2 in soupdesktop.find_all("h2"):
+    for art in soupdesktop.find_all("article"):
         try:
-            a = h2.find("a", href=True)
+            a = art.find_parent("a", href=True)
             if a is None:
-                continue
+                a = art.find("a", href=True)
+                if a is None:
+                    continue
 
             href = a["href"]
 
-            if ".article" not in href:
-                continue
-
-            # Skip sponsored content, white papers, tenders
-            if any(s in href for s in ["/sponsored-", "/white-papers/", "/tenders-and-jobs/"]):
+            # Skip sponsored content, white papers, tenders, and directory pages
+            if any(s in href for s in ["/sponsored-", "/white-papers/", "/tenders-and-jobs/", "/premium/"]):
                 continue
 
             # Normalize to full URL
@@ -49,9 +48,9 @@ def scrap_railwaygazette(url):
 def refresh_feed(rss_folder):
     return common_refresh_feed(
         rss_folder=rss_folder,
-        base_url="https://www.railwaygazette.com/news",
+        base_url="https://www.railwaygazette.com/",
         article_url="",
-        scrapping_function=scrap_railwaygazette,
+        scraping_function=scrap_railwaygazette,
         feed_title="Railway Gazette RSS Feed",
         feed_description="RSS feed of the latest articles published by Railway Gazette",
         feed_generator="Railway Gazette (from RSS Feed Generator)"

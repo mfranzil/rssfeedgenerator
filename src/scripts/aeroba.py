@@ -35,7 +35,7 @@ def refresh_feed(rss_folder):
         rss_folder=rss_folder,
         base_url=url,
         article_url='/'.join(url.split('/')[:-1]),
-        scrapping_function=scrap_aeroba,
+        scraping_function=scrap_aeroba,
         feed_title="AeroBA RSS Feed",
         feed_description="RSS feed dei bollettini pollini della Fondazione Mach",
         feed_generator="AeroBA FEM (from RSS Feed Generator)"
