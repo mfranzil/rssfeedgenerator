@@ -8,12 +8,25 @@ from time import gmtime, strftime
 from typing import Callable
 
 import requests
+from bs4 import BeautifulSoup, Comment
 from lxml import etree as et
 from readability import Document
 
 from src.config import SEEN_FILENAME, FEED_FILENAME, \
     DEFAULT_HEADER_DESKTOP, DEFAULT_TIMEOUT_CONNECTION, \
     MAX_DOWNLOAD_RETRIES
+
+
+# Prefer semantic article markup; fall back to readability.
+_ARTICLE_BODY_CLASSES = [
+    "c-article-body",
+    "article-body",
+    "article__body",
+    "article-content",
+    "post-content",
+    "entry-content",
+    "content-body",
+]
 
 
 def fetch_info(url: str, mapping: dict[str, tuple[str, str]]) -> tuple[str | None, str | None]:
@@ -35,8 +48,32 @@ def fetch_info(url: str, mapping: dict[str, tuple[str, str]]) -> tuple[str | Non
         log.warning(f"Unexpected response code {response.status_code} for {url}")
         return None, None
 
-    description = Document(response.text).summary()
-    title = Document(response.text).short_title()
+    html = response.text
+    soup = BeautifulSoup(html, "html.parser")
+
+    # Title: use the page's main heading when available.
+    h1 = soup.find("h1")
+    if h1 and h1.get_text(strip=True):
+        title = h1.get_text(strip=True)
+    else:
+        title = Document(html).short_title()
+
+    # Description: extract the article body if the site exposes one.
+    body = None
+    for cls in _ARTICLE_BODY_CLASSES:
+        body = soup.find(class_=cls)
+        if body:
+            break
+
+    if body:
+        # Remove scripts, styles and comments before serialising.
+        for tag in body.find_all(["script", "style"]):
+            tag.decompose()
+        for comment in body.find_all(string=lambda text: isinstance(text, Comment)):
+            comment.extract()
+        description = str(body)
+    else:
+        description = Document(html).summary()
 
     mapping[url] = title, description
     return title, description
